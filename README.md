@@ -1,6 +1,6 @@
 # SamuMovie
 
-This project is a fork of the https://github.com/nbatfai/SamuLife repository, and it is used for an exercise of the High level programming languages course.
+This project is a fork of the https://github.com/nbatfai/SamuMovie repository, and it is used for an exercise of the High level programming languages course.
 
 [Samu](http://arxiv.org/abs/1511.02889) (Nahshon) has captured a movie. 
 This is an example of the manuscript entitled "Samu in his prenatal development".
