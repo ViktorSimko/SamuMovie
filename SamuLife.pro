@@ -8,13 +8,13 @@ DEFINES += Q_LOOKUP_TABLE
 
 QT += widgets core
 CONFIG += c++11
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+QMAKE_CXXFLAGS += -fopenmp -lopencv_core -lopencv_videoio -lopencv_imgproc
+LIBS += -fopenmp -lopencv_core -lopencv_videoio -lopencv_imgproc
 
 TEMPLATE = app
 TARGET = SamuMovie
 INCLUDEPATH += .
 
 # Input
-HEADERS += GameOfLife.h SamuLife.h SamuQl.h
-SOURCES +=  main.cpp SamuLife.cpp GameOfLife.cpp 
+HEADERS += GameOfLife.h SamuLife.h SamuQl.h SVideoConverter.h
+SOURCES +=  main.cpp SamuLife.cpp GameOfLife.cpp SVideoConverter.cpp

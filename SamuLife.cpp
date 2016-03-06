@@ -35,7 +35,10 @@ SamuLife::SamuLife ( int w, int h, QWidget *parent ) : QMainWindow ( parent )
   setWindowTitle ( "SamuMovie" );
   setFixedSize ( QSize ( 2*w*m_cw, h*m_ch ) );
 
-  gameOfLife = new GameOfLife ( w, h );
+  m_converter = new SVideoConverter{ w, h };
+  m_converter->exec();
+
+  gameOfLife = new GameOfLife ( w, h, m_converter );
   gameOfLife->start();
 
   connect ( gameOfLife, SIGNAL ( cellsChanged ( bool **, bool ** ) ),
@@ -53,8 +56,6 @@ void SamuLife::updateCells ( bool **lattice, bool **prediction )
 void SamuLife::paintEvent ( QPaintEvent* )
 {
   QPainter qpainter ( this );
-
-
 
   for ( int i {0}; i<gameOfLife->getH(); ++i )
     {
@@ -118,6 +119,13 @@ void SamuLife::keyPressEvent ( QKeyEvent * event )
     {
       gameOfLife->setDelay(gameOfLife->getDelay() * 2.0);
     }
+}
+
+void SamuLife::closeEvent(QCloseEvent *evt)
+{
+  gameOfLife->stop();
+  gameOfLife->quit();
+  gameOfLife->wait();
 }
 
 SamuLife::~SamuLife()

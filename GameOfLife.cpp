@@ -30,8 +30,12 @@
 
 #include "GameOfLife.h"
 
-GameOfLife::GameOfLife ( int w, int h ) : m_w ( w ), m_h ( h )
+GameOfLife::GameOfLife ( int w, int h, SVideoConverter *conv ) : m_w ( w ), m_h ( h ), m_movie(conv)
 {
+  m_mutex = new QMutex();
+  m_stopped = false;
+  m_num_of_frames = m_movie->m_lattices.size();
+
   lattices = new bool**[2];
   lattices[0] = new bool*[m_h];
   for ( int i {0}; i<m_h; ++i )
@@ -63,25 +67,6 @@ GameOfLife::GameOfLife ( int w, int h ) : m_w ( w ), m_h ( h )
       {
         lattice[i][j] = false;
       }
-
-  /*
-  glider ( lattice, 2*m_w/5, 2*m_h/5 );
-  glider ( lattice, 3*m_w/5, 3*m_h/5 );
-  glider ( lattice, 4*m_w/5, 4*m_h/5 );
-  glider ( lattice, 4*m_w/5, 2*m_h/5 );
-  glider ( lattice, 2*m_w/5, 4*m_h/5 );
-  */
-
-  carx = 0;
-  manx = m_w/2;
-  housex = 2*m_w/5;
-
-  /*
-  house ( lattice, housex, 3*m_h/5 -6 );
-  car ( lattice, carx, 3*m_h/5 +1 );
-  man ( lattice, manx, 3*m_h/5-1 );
-*/
-
 }
 
 bool ** GameOfLife::lattice()
@@ -102,51 +87,19 @@ void GameOfLife::run()
           learning();
           latticeIndex = ( latticeIndex+1 ) %2;
           emit cellsChanged ( lattices[latticeIndex], predictions );
+          ++m_frame_num;
+          {
+            QMutexLocker lck(m_mutex);
+            if(m_stopped)
+              break;
+          }
         }
     }
-
 }
 
 void GameOfLife::pause()
 {
   paused = !paused;
-}
-
-int GameOfLife::numberOfNeighbors ( bool **lattice, int r, int c, bool state )
-{
-  int number {0};
-  for ( int i {-1}; i<2; ++i )
-    for ( int j {-1}; j<2; ++j )
-
-      if ( ! ( ( i==0 ) && ( j==0 ) ) )
-        {
-          int o = c + j;
-          if ( o < 0 )
-            {
-              o = m_w-1;
-            }
-          else if ( o >= m_w )
-            {
-              o = 0;
-            }
-
-          int s = r + i;
-          if ( s < 0 )
-            {
-              s = m_h-1;
-            }
-          else if ( s >= m_h )
-            {
-              s = 0;
-            }
-
-          if ( lattice[s][o] == state )
-            {
-              ++number;
-            }
-        }
-
-  return number;
 }
 
 void GameOfLife::development()
@@ -194,32 +147,10 @@ void GameOfLife::development()
       for ( int j {0}; j<m_w; ++j )
         {
 
-          nextLattice[i][j] = false;
+          nextLattice[i][j] = m_movie->m_lattices[m_frame_num % m_num_of_frames][j][i];
 
         }
     }
-
-  if(m_time %3 ==0)
-  {
-
-    if ( carx < m_w-5 )
-    carx += 2;
-  else
-    carx = 0;
-  }
-  
-  if(m_time %6 ==0)
-  {
-  if ( manx < m_w-3 )
-    ++manx;
-  else
-    manx = 0;
-  }
-  
-  house ( nextLattice, housex, 3*m_h/5 -6 );
-  car ( nextLattice, carx, 3*m_h/5 +1 );
-  man ( nextLattice, manx, 3*m_h/5-1 );
-  
 }
 
 
@@ -238,92 +169,9 @@ GameOfLife::~GameOfLife()
   delete[] lattices[0];
   delete[] lattices[1];
   delete[] lattices;
+  delete m_movie;
 
 }
-
-void GameOfLife::glider ( bool **lattice, int x, int y )
-{
-
-  lattice[y+0][x+2] = true;
-  lattice[y+1][x+1] = true;
-  lattice[y+2][x+1] = true;
-  lattice[y+2][x+2] = true;
-  lattice[y+2][x+3] = true;
-
-}
-
-
-void GameOfLife::house ( bool **lattice, int x, int y )
-{
-
-  lattice[y+0][x+3] = true;
-
-  lattice[y+1][x+2] = true;
-  lattice[y+1][x+4] = true;
-
-  lattice[y+2][x+1] = true;
-  lattice[y+2][x+5] = true;
-
-  lattice[y+3][x+0] = true;
-  lattice[y+3][x+6] = true;
-
-  lattice[y+4][x+0] = true;
-  lattice[y+4][x+6] = true;
-
-  lattice[y+5][x+0] = true;
-  lattice[y+5][x+6] = true;
-
-  lattice[y+6][x+0] = true;
-  lattice[y+6][x+6] = true;
-
-  lattice[y+7][x+0] = true;
-  lattice[y+7][x+6] = true;
-
-  lattice[y+8][x+0] = true;
-  lattice[y+8][x+1] = true;
-  lattice[y+8][x+2] = true;
-  lattice[y+8][x+3] = true;
-  lattice[y+8][x+4] = true;
-  lattice[y+8][x+5] = true;
-  lattice[y+8][x+6] = true;
-}
-
-
-void GameOfLife::man ( bool **lattice, int x, int y )
-{
-
-  lattice[y+0][x+1] = true;
-
-  lattice[y+1][x+0] = true;
-  lattice[y+1][x+1] = true;
-  lattice[y+1][x+2] = true;
-
-  lattice[y+2][x+1] = true;
-
-  lattice[y+3][x+0] = true;
-  lattice[y+3][x+2] = true;
-
-}
-
-
-void GameOfLife::car ( bool **lattice, int x, int y )
-{
-
-  lattice[y+0][x+1] = true;
-  lattice[y+0][x+2] = true;
-  lattice[y+0][x+3] = true;
-
-  lattice[y+1][x+0] = true;
-  lattice[y+1][x+1] = true;
-  lattice[y+1][x+2] = true;
-  lattice[y+1][x+3] = true;
-  lattice[y+1][x+4] = true;
-
-  lattice[y+2][x+1] = true;
-  lattice[y+2][x+3] = true;
-
-}
-
 
 int GameOfLife::getW() const
 {
@@ -427,6 +275,12 @@ void GameOfLife::learning()
 
     }
 
+}
+
+void GameOfLife::stop()
+{
+  QMutexLocker lck(m_mutex);
+  m_stopped = true;
 }
 
 
