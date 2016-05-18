@@ -18,12 +18,11 @@ SVideoConverter::SVideoConverter(size_t w_w, size_t w_h)
 	// get the width and the height of the capture stream
 	m_mw = m_cap.get(CV_CAP_PROP_FRAME_WIDTH);
 	m_mh = m_cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-    std::cerr << m_mw << ':' << m_mh << std::endl;
+
 
 	// calculate the w and h of the cells in the movie
 	m_cw = m_mw / m_ww;
 	m_ch = m_mh / m_wh;
-    std::cerr << m_cw << ':' << m_ch << std::endl;
 
 
 	//Convert();
