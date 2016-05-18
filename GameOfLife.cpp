@@ -147,7 +147,7 @@ void GameOfLife::development()
       for ( int j {0}; j<m_w; ++j )
         {
 
-          nextLattice[i][j] = m_movie->m_lattices[m_frame_num % m_num_of_frames][j][i];
+          nextLattice[i][j] = m_movie->m_lattices[m_frame_num % m_num_of_frames][i][j];
 
         }
     }

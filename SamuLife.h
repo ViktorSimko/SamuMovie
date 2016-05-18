@@ -36,6 +36,7 @@
 #include <QPainter>
 #include <QFont>
 #include <QCloseEvent>
+#include "Recorder.h"
 #include "SVideoConverter.h"
 #include "GameOfLife.h"
 
@@ -43,10 +44,11 @@ class SamuLife : public QMainWindow
 {
     Q_OBJECT
 
-    int m_cw {20}, m_ch {20};
+    int m_cw {4}, m_ch {4};
     GameOfLife *gameOfLife;
     bool **lattice {nullptr};
     bool **prediction {nullptr};
+    Recorder *m_recorder;
     SVideoConverter *m_converter;
     void closeEvent(QCloseEvent *evt);
 

@@ -34,7 +34,10 @@ SamuLife::SamuLife ( int w, int h, QWidget *parent ) : QMainWindow ( parent )
 {
   setWindowTitle ( "SamuMovie" );
   setFixedSize ( QSize ( 2*w*m_cw, h*m_ch ) );
-
+    /*
+  m_recorder = new Recorder("SamuVid.avi");
+  m_recorder->exec();
+    */
   m_converter = new SVideoConverter{ w, h };
   m_converter->exec();
 
@@ -130,6 +133,8 @@ void SamuLife::closeEvent(QCloseEvent *evt)
 
 SamuLife::~SamuLife()
 {
+  delete m_recorder;
+  delete m_converter;
   delete gameOfLife;
 }
 
